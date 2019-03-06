@@ -28,7 +28,7 @@ public class Invoice {
         this.invoiceProducts = new ArrayList<>();
     }
 
-    public Invoice(String number, Date sellDate, Seller seller, Buyer buyer, double totalBrutto, double totalNetto, double totalVat, List<InvoiceProduct> invoiceProducts, boolean isPaid){
+    public Invoice(String number, Date sellDate, Seller seller, Buyer buyer, double totalBrutto, double totalNetto, double totalVat, boolean isPaid, List<InvoiceProduct> invoiceProducts){
         this.number = number;
         this.sellDate = sellDate;
         this.seller = seller;
