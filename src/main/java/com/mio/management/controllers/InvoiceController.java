@@ -2,6 +2,9 @@ package com.mio.management.controllers;
 
 import com.mio.management.db.InvoiceRepository;
 import com.mio.management.models.Invoice;
+import com.mio.management.models.QInvoice;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,7 +13,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/invoices")
 public class InvoiceController {
-    private InvoiceRepository invoiceRepository;
+
+    @Autowired private InvoiceRepository invoiceRepository;
 
     public InvoiceController(InvoiceRepository invoiceRepository) {
         this.invoiceRepository = invoiceRepository;
@@ -67,6 +71,31 @@ public class InvoiceController {
     @GetMapping("/buyer/{name}")
     public List<Invoice> getByBuyerName(@PathVariable("name") String name){
         List<Invoice> invoices = this.invoiceRepository.findByBuyerName(name);
+
+        return invoices;
+    }
+
+    @GetMapping("/seller/{nip}")
+    public List<Invoice> getBySellerNip(@PathVariable("nip") String nip){
+        QInvoice qInvoice = new QInvoice("invoice");
+        BooleanExpression filterBySellerNip = qInvoice.seller.nip.eq(nip);
+
+        List<Invoice> invoices = (List<Invoice>) this.invoiceRepository.findAll(filterBySellerNip);
+
+        return invoices;
+    }
+
+    @GetMapping("/most-expensive")
+    public List<Invoice> getMostExpensiveProducts(){
+        final double minPrice = 59;
+        final boolean isPaid = true;
+
+        QInvoice qInvoice = new QInvoice("invoice");
+
+        BooleanExpression filterByPaid = qInvoice.isPaid.eq(true);
+        BooleanExpression filterByProductPrice = qInvoice.invoiceProducts.any().priceBrutto.gt(minPrice);
+
+        List<Invoice> invoices = (List<Invoice>) this.invoiceRepository.findAll(filterByPaid.and(filterByProductPrice));
 
         return invoices;
     }
